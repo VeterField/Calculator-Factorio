@@ -8,6 +8,7 @@ public class Calculator : MonoBehaviour
     private readonly IndustryBook _industryBook = new IndustryBook();
     private Report _reportList = new Report();
     private readonly Math _math = new Math();
+    private readonly OilRefineryMath _oilMath = new OilRefineryMath();
 
     private RecipeName _inputName = RecipeName.PlasticBar;
     private int _targetOutput = 200;
@@ -21,9 +22,11 @@ public class Calculator : MonoBehaviour
 
     private void Calculate(in RecipeName name, in float targetValue)
     {
-        SetNextStep(name, targetValue);
+        //SetNextStep(RecipeName.Lubricant, 1000);
+        //SetNextStep(RecipeName.SolidFuel, 500);
+        //SetNextStep(RecipeName.PlasticBar, 1200);
 
-        CountOilFactory(RecipeName.BaseOilProcesing);
+        CountOilFactory(RecipeName.AdvansedOilProcesing);
     }
 
     private void SetNextStep(in RecipeName name, in float targetValue)
@@ -77,23 +80,15 @@ public class Calculator : MonoBehaviour
 
     private void CountOilFactory(in RecipeName OilProcesName)
     {
+        _recipeBook.GetRecipe(OilProcesName, out var recipe);
+
         GetOilNeeds(out float[] _needs);
 
-        if (OilProcesName == RecipeName.BaseOilProcesing)
-        {
-            if (_recipeBook.GetRecipe(RecipeName.BaseOilProcesing, out Recipe recipe) == true)
-            {
-                var reportLine = _reportList.TryGetReportLine(RecipeName.PetroliumGas);
+        _oilMath.CountOilRefinery(out var factory, out var outputs, _needs, recipe);
 
-                reportLine.TryChageNullIndustry(IndustryName.OilRefinery);
-
-                _math.TryCountFactoryAmount(_needs[2], recipe, out float factory);
-                _math.TryCountTotalPolution(factory, recipe, out float polution);
-                _math.TryCountTotalEnergyConsumption(factory, recipe, out float energy);
-
-                reportLine.AddValues(factory, 0, 0, polution, energy);
-            }
-        }
+        Debug.Log(outputs[0]);
+        Debug.Log(outputs[1]);
+        Debug.Log(outputs[2]);
     }
 
     private void GetOilNeeds(out float[] needs)

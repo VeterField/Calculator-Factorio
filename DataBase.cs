@@ -124,6 +124,53 @@ public class Math
     }
 }
 
+public class OilRefineryMath
+{
+    private readonly RecipeBook _recipeBook = new RecipeBook();
+    private readonly IndustryBook _industryBook = new IndustryBook();
+
+    public void CountOilRefinery(out float oilRefinery, out float[] oilRefOutput, in float[] targetOutput, in Recipe oilRef)
+    {
+        _industryBook.TryGetType(oilRef.IndustryType, out var type);
+
+        if (oilRef._productList.Count > 1)
+        {
+            oilRefinery = 0;
+            oilRefOutput = new float[3];
+            float cookie;
+
+            for (int i = 0; i < oilRef._productList.Count; i++)
+            {
+                cookie = targetOutput[i] / 60 * oilRef.CycleTime / type.ProductionRate / oilRef._productList[i].amount;
+
+                if (cookie > oilRefinery)
+                {
+                    oilRefinery = cookie;
+                }
+            }
+
+            for (int i = 0; i < oilRef._productList.Count; i++)
+            {
+                oilRefOutput[i] = targetOutput[i] - oilRefinery * 60 / oilRef.CycleTime * type.ProductionRate * oilRef._productList[i].amount;
+            }
+        }
+        else
+        {
+            oilRefinery = targetOutput[2] / 60 * oilRef.CycleTime / type.ProductionRate / oilRef._productList[0].amount;
+            oilRefOutput = new float[1];
+            oilRefOutput[0] = targetOutput[2];
+        }
+    }
+
+    /*public void CountChemicalPlant(in Recipe oilRef, in float[] oilRefOutput, in float oilRefinery, out float refinery, out float lightPlant, out float gasPlant)
+    {
+        _recipeBook.GetRecipe(RecipeName.CrackingHeavyToLight, out var HLrecipe);
+        _recipeBook.GetRecipe(RecipeName.CrackingLightToGas, out var LGrecipe);
+
+        
+    }*/
+}
+
 public enum RecipeName
 {
     Null,
